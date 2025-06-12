@@ -1,0 +1,40 @@
+# Node.js
+node_modules/
+dist/
+build/
+.env
+.npm/
+npm-debug.log*
+
+# Java
+.classpath
+.project
+.settings/
+target/
+*.iml
+.DS_Store
+.vscode/
+
+# IDE
+.idea/
+*.iws
+*.ipr
+*.iml
+.gradle
+.project
+.classpath
+build/
+out/
+tmp/
+*.log
+!gradle-wrapper.jar
+
+# Logs
+logs/
+*.log
+
+# OS generated files
+.DS_Store
+.Trashes
+ehthumbs.db
+Thumbs.db 
