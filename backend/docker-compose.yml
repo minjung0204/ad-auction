@@ -1,0 +1,19 @@
+version: "3.8"
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: ad_auction_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password # 루트 계정 비밀번호
+      MYSQL_DATABASE: ad_auction_db # 사용할 데이터베이스 이름
+      MYSQL_USER: user # 일반 사용자 이름
+      MYSQL_PASSWORD: password # 일반 사용자 비밀번호
+    ports:
+      - "3306:3306" # 호스트 포트:컨테이너 포트
+    volumes:
+      - mysql_data:/var/lib/mysql # 데이터 지속성을 위한 볼륨
+    restart: always
+
+volumes:
+  mysql_data: # MySQL 데이터 저장을 위한 명명된 볼륨

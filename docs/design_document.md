@@ -182,7 +182,7 @@ MySQL을 기반으로 주요 엔티티 및 테이블을 설계합니다.
 채팅방 내의 메시지 내용입니다.
 
 | 필드명 (Column Name) | 데이터 타입 (Data Type) | 제약조건 (Constraints)     | 설명 (Description)        |
-| :------------------- | :---------------------- | :------------------------- | :------------------------ |
+| :------------------- | :---------------------- | :------------------------- | :------------------------|
 | `message_id`         | BIGINT                  | PK, AUTO_INCREMENT         | 메시지 고유 ID            |
 | `chat_room_id`       | BIGINT                  | FK (ChatRoom.chat_room_id) | 채팅방 ID                 |
 | `sender_id`          | BIGINT                  | FK (User.user_id)          | 발신자 ID                 |
