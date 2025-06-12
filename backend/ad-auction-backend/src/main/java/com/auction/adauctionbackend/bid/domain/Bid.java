@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "Bid")
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
@@ -25,17 +26,17 @@ public class Bid {
     @JoinColumn(name = "advertiser_id", nullable = false)
     private User advertiser;
 
-    @Column(name = "place_link", nullable = false, length = 500)
+    @Column(name = "place_link", nullable = false)
     private String placeLink;
 
-    @Column(name = "desired_rank", nullable = false, length = 50)
+    @Column(name = "desired_rank", nullable = false)
     private String desiredRank;
 
     @Column(nullable = false)
     private String keyword;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false)
     private BidStatus status;
 
     @Column(name = "expires_at", nullable = false)
