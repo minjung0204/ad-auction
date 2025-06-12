@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "Review")
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
@@ -35,12 +36,13 @@ public class Review {
     private Bid bid;
 
     @Column(nullable = false)
-    private Integer rating;
+    private Integer rating; // 1-5점
 
+    @Column(columnDefinition = "TEXT")
     private String comment;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false)
     private ReviewStatus status;
 
     @CreationTimestamp

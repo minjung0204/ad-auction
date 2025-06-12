@@ -1,9 +1,16 @@
 package com.auction.adauctionbackend.advertiser.controller;
 
 import com.auction.adauctionbackend.advertiser.dto.BidRegistrationRequest;
+import com.auction.adauctionbackend.advertiser.dto.ReviewCreationRequest;
 import com.auction.adauctionbackend.bid.domain.Bid;
 import com.auction.adauctionbackend.bid.dto.BidResponse;
 import com.auction.adauctionbackend.bid.service.BidService;
+import com.auction.adauctionbackend.payment.domain.Payment;
+import com.auction.adauctionbackend.payment.dto.PaymentResponse;
+import com.auction.adauctionbackend.payment.service.PaymentService;
+import com.auction.adauctionbackend.review.domain.Review;
+import com.auction.adauctionbackend.review.dto.ReviewResponse;
+import com.auction.adauctionbackend.review.service.ReviewService;
 import com.auction.adauctionbackend.user.domain.User;
 import com.auction.adauctionbackend.user.service.UserService;
 import jakarta.validation.Valid;
@@ -24,6 +31,8 @@ public class AdvertiserController {
 
     private final BidService bidService;
     private final UserService userService;
+    private final PaymentService paymentService;
+    private final ReviewService reviewService;
 
     /**
      * 광고주가 새로운 입찰 요청을 등록합니다.
@@ -95,5 +104,48 @@ public class AdvertiserController {
         User currentAdvertiser = userService.getCurrentUser();
         Bid updatedBid = bidService.selectAgencyForBid(bidId, proposalId, currentAdvertiser);
         return ResponseEntity.ok(BidResponse.from(updatedBid));
+    }
+
+    /**
+     * 현재 로그인된 광고주의 결제 내역 목록을 조회합니다.
+     * 
+     * @return 결제 내역 목록을 담은 응답 엔티티
+     */
+    @GetMapping("/payments")
+    public ResponseEntity<List<PaymentResponse>> getMyPayments() {
+        User currentAdvertiser = userService.getCurrentUser();
+        List<Payment> payments = paymentService.getPaymentsByAdvertiser(currentAdvertiser);
+        List<PaymentResponse> paymentResponses = payments.stream()
+                .map(PaymentResponse::from)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(paymentResponses);
+    }
+
+    /**
+     * 광고주가 대행사에 대한 리뷰를 작성합니다.
+     * 
+     * @param request 리뷰 생성 요청 DTO
+     * @return 생성된 리뷰 정보를 담은 응답 엔티티
+     */
+    @PostMapping("/reviews")
+    public ResponseEntity<ReviewResponse> createReview(@Valid @RequestBody ReviewCreationRequest request) {
+        User currentAdvertiser = userService.getCurrentUser();
+        Review newReview = reviewService.createReview(request, currentAdvertiser);
+        return new ResponseEntity<>(ReviewResponse.from(newReview), HttpStatus.CREATED);
+    }
+
+    /**
+     * 현재 로그인된 광고주가 작성한 모든 리뷰 목록을 조회합니다.
+     * 
+     * @return 리뷰 목록을 담은 응답 엔티티
+     */
+    @GetMapping("/reviews")
+    public ResponseEntity<List<ReviewResponse>> getMyReviews() {
+        User currentAdvertiser = userService.getCurrentUser();
+        List<Review> reviews = reviewService.getReviewsByAdvertiser(currentAdvertiser);
+        List<ReviewResponse> reviewResponses = reviews.stream()
+                .map(ReviewResponse::from)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(reviewResponses);
     }
 }

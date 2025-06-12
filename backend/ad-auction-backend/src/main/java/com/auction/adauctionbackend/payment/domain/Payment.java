@@ -1,7 +1,6 @@
 package com.auction.adauctionbackend.payment.domain;
 
 import com.auction.adauctionbackend.bid.domain.Bid;
-import com.auction.adauctionbackend.payment.domain.enums.PaymentMethod;
 import com.auction.adauctionbackend.payment.domain.enums.PaymentStatus;
 import com.auction.adauctionbackend.user.domain.User;
 import jakarta.persistence.*;
@@ -15,6 +14,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "Payment")
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
@@ -33,7 +33,7 @@ public class Payment {
     private User advertiser;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "agency_id", nullable = false)
+    @JoinColumn(name = "agency_id")
     private User agency;
 
     @Column(nullable = false, precision = 10, scale = 2)
@@ -42,12 +42,11 @@ public class Payment {
     @Column(name = "platform_fee", nullable = false, precision = 10, scale = 2)
     private BigDecimal platformFee;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "payment_method", nullable = false, length = 50)
-    private PaymentMethod paymentMethod;
+    @Column(name = "payment_method", nullable = false)
+    private String paymentMethod;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false)
     private PaymentStatus status;
 
     @Column(name = "paid_at")
