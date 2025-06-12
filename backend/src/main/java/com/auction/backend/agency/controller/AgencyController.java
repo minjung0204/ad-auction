@@ -10,6 +10,9 @@ import com.auction.backend.proposal.dto.ProposalResponse;
 import com.auction.backend.proposal.dto.ProposalSubmissionRequest;
 import com.auction.backend.proposal.dto.ProposalUpdateRequest;
 import com.auction.backend.proposal.service.ProposalService;
+import com.auction.backend.settlement.dto.SettlementRequest;
+import com.auction.backend.settlement.dto.SettlementResponse;
+import com.auction.backend.settlement.service.SettlementService;
 import com.auction.backend.user.config.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -27,6 +30,7 @@ public class AgencyController {
     private final BidService bidService;
     private final ProposalService proposalService;
     private final PortfolioService portfolioService;
+    private final SettlementService settlementService;
 
     // 입찰 목록 조회 (대행사용)
     @GetMapping("/bids")
@@ -100,5 +104,21 @@ public class AgencyController {
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
         portfolioService.deletePortfolio(portfolioId, userDetails.getId());
         return ResponseEntity.noContent().build();
+    }
+
+    // 정산 요청
+    @PostMapping("/settlements")
+    public ResponseEntity<SettlementResponse> requestSettlement(@RequestBody SettlementRequest request,
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        SettlementResponse response = settlementService.requestSettlement(request, userDetails.getId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    // 내 정산 내역 조회
+    @GetMapping("/settlements")
+    public ResponseEntity<List<SettlementResponse>> getMySettlements(
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        List<SettlementResponse> settlements = settlementService.getSettlementsByAgencyId(userDetails.getId());
+        return ResponseEntity.ok(settlements);
     }
 }
