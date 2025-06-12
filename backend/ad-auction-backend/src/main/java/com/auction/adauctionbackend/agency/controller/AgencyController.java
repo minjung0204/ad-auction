@@ -13,7 +13,9 @@ import com.auction.adauctionbackend.proposal.service.ProposalService;
 import com.auction.adauctionbackend.settlement.dto.SettlementRequest;
 import com.auction.adauctionbackend.settlement.dto.SettlementResponse;
 import com.auction.adauctionbackend.settlement.service.SettlementService;
-import com.auction.adauctionbackend.user.config.UserDetailsImpl;
+import com.auction.adauctionbackend.security.UserDetailsImpl;
+import com.auction.adauctionbackend.user.domain.User;
+import com.auction.adauctionbackend.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +33,7 @@ public class AgencyController {
     private final ProposalService proposalService;
     private final PortfolioService portfolioService;
     private final SettlementService settlementService;
+    private final UserService userService;
 
     /**
      * 대행사가 조회할 수 있는 모든 활성 입찰 요청 목록을 조회합니다.
@@ -69,7 +72,8 @@ public class AgencyController {
     public ResponseEntity<ProposalResponse> submitProposal(@PathVariable("bid_id") Long bidId,
             @RequestBody ProposalSubmissionRequest request,
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        ProposalResponse response = proposalService.submitProposal(bidId, userDetails.getId(), request);
+        User agency = userService.getUserById(userDetails.getId());
+        ProposalResponse response = proposalService.submitProposal(bidId, request, agency);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -84,7 +88,8 @@ public class AgencyController {
     public ResponseEntity<ProposalResponse> updateProposal(@PathVariable("proposal_id") Long proposalId,
             @RequestBody ProposalUpdateRequest request,
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        ProposalResponse response = proposalService.updateProposal(proposalId, userDetails.getId(), request);
+        User agency = userService.getUserById(userDetails.getId());
+        ProposalResponse response = proposalService.updateProposal(proposalId, request, agency);
         return ResponseEntity.ok(response);
     }
 
@@ -97,7 +102,8 @@ public class AgencyController {
     @PostMapping("/portfolios")
     public ResponseEntity<PortfolioResponse> createPortfolio(@RequestBody PortfolioCreationRequest request,
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        PortfolioResponse response = portfolioService.createPortfolio(request, userDetails.getId());
+        User agency = userService.getUserById(userDetails.getId());
+        PortfolioResponse response = portfolioService.createPortfolio(request, agency);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -112,7 +118,8 @@ public class AgencyController {
     public ResponseEntity<PortfolioResponse> updatePortfolio(@PathVariable("portfolio_id") Long portfolioId,
             @RequestBody PortfolioUpdateRequest request,
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        PortfolioResponse response = portfolioService.updatePortfolio(portfolioId, request, userDetails.getId());
+        User agency = userService.getUserById(userDetails.getId());
+        PortfolioResponse response = portfolioService.updatePortfolio(portfolioId, request, agency);
         return ResponseEntity.ok(response);
     }
 
@@ -124,7 +131,8 @@ public class AgencyController {
     @GetMapping("/portfolios")
     public ResponseEntity<List<PortfolioResponse>> getMyPortfolios(
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        List<PortfolioResponse> portfolios = portfolioService.getPortfoliosByAgency(userDetails.getId());
+        User agency = userService.getUserById(userDetails.getId());
+        List<PortfolioResponse> portfolios = portfolioService.getPortfoliosByAgency(agency);
         return ResponseEntity.ok(portfolios);
     }
 
@@ -149,7 +157,8 @@ public class AgencyController {
     @DeleteMapping("/portfolios/{portfolio_id}")
     public ResponseEntity<Void> deletePortfolio(@PathVariable("portfolio_id") Long portfolioId,
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        portfolioService.deletePortfolio(portfolioId, userDetails.getId());
+        User agency = userService.getUserById(userDetails.getId());
+        portfolioService.deletePortfolio(portfolioId, agency);
         return ResponseEntity.noContent().build();
     }
 
@@ -162,7 +171,8 @@ public class AgencyController {
     @PostMapping("/settlements")
     public ResponseEntity<SettlementResponse> requestSettlement(@RequestBody SettlementRequest request,
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        SettlementResponse response = settlementService.requestSettlement(request, userDetails.getId());
+        User agency = userService.getUserById(userDetails.getId());
+        SettlementResponse response = settlementService.requestSettlement(request, agency);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -174,7 +184,8 @@ public class AgencyController {
     @GetMapping("/settlements")
     public ResponseEntity<List<SettlementResponse>> getMySettlements(
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        List<SettlementResponse> settlements = settlementService.getSettlementsByAgencyId(userDetails.getId());
+        User agency = userService.getUserById(userDetails.getId());
+        List<SettlementResponse> settlements = settlementService.getSettlementsByAgencyId(agency);
         return ResponseEntity.ok(settlements);
     }
 }

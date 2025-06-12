@@ -28,14 +28,6 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         // 사용자 권한을 SimpleGrantedAuthority로 변환합니다.
         // 여기서는 user.getUserType().name()을 사용하여 사용자 유형을 권한으로 설정합니다.
-        return org.springframework.security.core.userdetails.User.builder()
-                .username(user.getEmail())
-                .password(user.getPassword())
-                .authorities(user.getUserType().name()) // 예: ADVERTISER, AGENCY, ADMIN
-                .accountExpired(false)
-                .accountLocked(false)
-                .credentialsExpired(false)
-                .disabled(false)
-                .build();
+        return UserDetailsImpl.build(user);
     }
 }

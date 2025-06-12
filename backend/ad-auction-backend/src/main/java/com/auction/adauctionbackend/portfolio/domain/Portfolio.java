@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "Portfolio")
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
@@ -28,13 +29,14 @@ public class Portfolio {
     @Column(nullable = false)
     private String title;
 
+    @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "file_url", nullable = false, length = 500)
+    @Column(name = "file_url", nullable = false)
     private String fileUrl;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false)
     private PortfolioStatus status;
 
     @Column(name = "admin_memo", columnDefinition = "TEXT")

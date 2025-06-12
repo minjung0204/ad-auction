@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "Notification")
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
@@ -32,7 +33,8 @@ public class Notification {
     private String message;
 
     @Column(name = "is_read", nullable = false)
-    private Boolean isRead;
+    @Builder.Default
+    private Boolean isRead = false;
 
     @CreationTimestamp
     @Column(name = "sent_at", nullable = false, updatable = false)

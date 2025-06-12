@@ -14,6 +14,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
 
 @Service
 @RequiredArgsConstructor
@@ -92,6 +94,18 @@ public class UserService {
         String username = authentication.getName(); // CustomUserDetailsService에서 설정한 이메일
         return userRepository.findByEmail(username)
                 .orElseThrow(() -> new IllegalStateException("사용자 정보를 찾을 수 없습니다: " + username));
+    }
+
+    /**
+     * 사용자 ID로 사용자 정보를 조회합니다.
+     * 
+     * @param id 조회할 사용자의 ID
+     * @return 조회된 사용자 엔티티
+     * @throws ResponseStatusException ID에 해당하는 사용자를 찾을 수 없을 때 발생
+     */
+    public User getUserById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다: " + id));
     }
 
     /**

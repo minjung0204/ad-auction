@@ -3,10 +3,11 @@ package com.auction.adauctionbackend.proposal.service;
 import com.auction.adauctionbackend.bid.domain.Bid;
 import com.auction.adauctionbackend.bid.domain.enums.BidStatus;
 import com.auction.adauctionbackend.bid.repository.BidRepository;
-import com.auction.adauctionbackend.agency.dto.ProposalSubmissionRequest;
-import com.auction.adauctionbackend.agency.dto.ProposalUpdateRequest;
+import com.auction.adauctionbackend.proposal.dto.ProposalSubmissionRequest;
+import com.auction.adauctionbackend.proposal.dto.ProposalUpdateRequest;
 import com.auction.adauctionbackend.proposal.domain.Proposal;
 import com.auction.adauctionbackend.proposal.domain.enums.ProposalStatus;
+import com.auction.adauctionbackend.proposal.dto.ProposalResponse;
 import com.auction.adauctionbackend.proposal.repository.ProposalRepository;
 import com.auction.adauctionbackend.user.domain.User;
 import lombok.RequiredArgsConstructor;
@@ -53,11 +54,11 @@ public class ProposalService {
      * @param bidId   제안을 제출할 입찰의 ID
      * @param request 제안 제출 요청 DTO
      * @param agency  제안을 제출하는 대행사 사용자 엔티티
-     * @return 생성된 제안 엔티티
+     * @return 생성된 제안 응답 DTO
      * @throws ResponseStatusException 입찰을 찾을 수 없거나, 유효하지 않은 입찰 상태, 이미 제안이 제출된 경우 발생
      */
     @Transactional
-    public Proposal submitProposal(Long bidId, ProposalSubmissionRequest request, User agency) {
+    public ProposalResponse submitProposal(Long bidId, ProposalSubmissionRequest request, User agency) {
         // 1. 입찰 유효성 확인
         Bid bid = bidRepository.findById(bidId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "입찰을 찾을 수 없습니다."));
@@ -80,7 +81,7 @@ public class ProposalService {
                 .status(ProposalStatus.SUBMITTED) // 초기 상태는 SUBMITTED
                 .build();
 
-        return proposalRepository.save(newProposal);
+        return ProposalResponse.from(proposalRepository.save(newProposal));
     }
 
     /**
@@ -90,11 +91,11 @@ public class ProposalService {
      * @param proposalId 수정할 제안의 ID
      * @param request    제안 수정 요청 DTO
      * @param agency     제안을 수정하는 대행사 사용자 엔티티
-     * @return 수정된 제안 엔티티
+     * @return 수정된 제안 응답 DTO
      * @throws ResponseStatusException 제안을 찾을 수 없거나, 수정 권한이 없거나, 수정할 수 없는 상태인 경우 발생
      */
     @Transactional
-    public Proposal updateProposal(Long proposalId, ProposalUpdateRequest request, User agency) {
+    public ProposalResponse updateProposal(Long proposalId, ProposalUpdateRequest request, User agency) {
         // 1. 제안 조회 및 소유자 확인
         Proposal proposal = proposalRepository.findById(proposalId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "제안을 찾을 수 없습니다."));
@@ -120,6 +121,6 @@ public class ProposalService {
             proposal.setStatus(request.getStatus());
         }
 
-        return proposalRepository.save(proposal);
+        return ProposalResponse.from(proposalRepository.save(proposal));
     }
 }

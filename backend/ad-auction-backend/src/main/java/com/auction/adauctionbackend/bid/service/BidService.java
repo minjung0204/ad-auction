@@ -1,13 +1,18 @@
 package com.auction.adauctionbackend.bid.service;
 
 import com.auction.adauctionbackend.advertiser.dto.BidRegistrationRequest;
+import com.auction.adauctionbackend.agency.dto.AgencyBidDetailsResponse;
 import com.auction.adauctionbackend.bid.domain.Bid;
 import com.auction.adauctionbackend.bid.domain.enums.BidStatus;
+import com.auction.adauctionbackend.bid.dto.BidResponse;
 import com.auction.adauctionbackend.bid.repository.BidRepository;
 import com.auction.adauctionbackend.proposal.domain.Proposal;
 import com.auction.adauctionbackend.proposal.domain.enums.ProposalStatus;
+import com.auction.adauctionbackend.proposal.dto.ProposalResponse;
 import com.auction.adauctionbackend.proposal.repository.ProposalRepository;
+import com.auction.adauctionbackend.proposal.service.ProposalService;
 import com.auction.adauctionbackend.user.domain.User;
+import com.auction.adauctionbackend.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -16,6 +21,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +30,8 @@ public class BidService {
 
     private final BidRepository bidRepository;
     private final ProposalRepository proposalRepository;
+    private final ProposalService proposalService;
+    private final UserService userService;
 
     /**
      * 새로운 입찰 요청을 등록합니다. 초기 상태는 PENDING입니다.
@@ -127,18 +135,41 @@ public class BidService {
      * 
      * @return 활성 입찰 요청 목록
      */
-    public List<Bid> getAllActiveBids() {
-        return bidRepository.findByStatusIn(List.of(BidStatus.ACTIVE, BidStatus.PENDING));
+    public List<AgencyBidDetailsResponse> getAllActiveBids() {
+        List<Bid> bids = bidRepository.findByStatusIn(List.of(BidStatus.ACTIVE, BidStatus.PENDING));
+        return bids.stream()
+                .map(bid -> {
+                    List<ProposalResponse> proposals = proposalService.getProposalsByBid(bid).stream()
+                            .map(ProposalResponse::from)
+                            .collect(Collectors.toList());
+                    return AgencyBidDetailsResponse.builder()
+                            .bid(BidResponse.from(bid))
+                            .proposals(proposals)
+                            .build();
+                })
+                .collect(Collectors.toList());
     }
 
     /**
-     * 특정 입찰 요청을 ID로 조회합니다.
+     * 특정 입찰 요청을 ID로 조회하고, 해당 입찰에 대한 대행사의 제안 정보를 포함합니다.
      * 
-     * @param bidId 조회할 입찰의 ID
-     * @return 조회된 입찰 엔티티 (Optional)
+     * @param bidId    조회할 입찰의 ID
+     * @param agencyId 현재 로그인된 대행사의 ID (선택 사항, 대행사의 제안을 포함할 때 사용)
+     * @return 입찰 상세 정보 및 제안 정보를 담은 DTO (Optional)
      */
-    public Optional<Bid> getBidById(Long bidId) {
-        return bidRepository.findById(bidId);
+    public AgencyBidDetailsResponse getBidById(Long bidId, Long agencyId) {
+        Bid bid = bidRepository.findById(bidId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "입찰을 찾을 수 없습니다."));
+
+        List<ProposalResponse> proposals = proposalService.getProposalsByBid(bid).stream()
+                .filter(proposal -> agencyId == null || proposal.getAgency().getId().equals(agencyId))
+                .map(ProposalResponse::from)
+                .collect(Collectors.toList());
+
+        return AgencyBidDetailsResponse.builder()
+                .bid(BidResponse.from(bid))
+                .proposals(proposals)
+                .build();
     }
 
     // 여기에 입찰 관련 비즈니스 로직을 구현합니다.
