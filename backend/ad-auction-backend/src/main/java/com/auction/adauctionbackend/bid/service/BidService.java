@@ -121,5 +121,25 @@ public class BidService {
         return bid;
     }
 
+    /**
+     * 모든 활성(ACTIVE 또는 PENDING) 입찰 요청 목록을 조회합니다.
+     * 대행사에게 노출될 입찰 목록입니다.
+     * 
+     * @return 활성 입찰 요청 목록
+     */
+    public List<Bid> getAllActiveBids() {
+        return bidRepository.findByStatusIn(List.of(BidStatus.ACTIVE, BidStatus.PENDING));
+    }
+
+    /**
+     * 특정 입찰 요청을 ID로 조회합니다.
+     * 
+     * @param bidId 조회할 입찰의 ID
+     * @return 조회된 입찰 엔티티 (Optional)
+     */
+    public Optional<Bid> getBidById(Long bidId) {
+        return bidRepository.findById(bidId);
+    }
+
     // 여기에 입찰 관련 비즈니스 로직을 구현합니다.
 }
