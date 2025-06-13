@@ -18,6 +18,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.http.HttpMethod;
 
 @Configuration
 @EnableWebSecurity
@@ -43,6 +44,7 @@ public class SecurityConfig {
                                                                                                               // 시 세션 사용
                                                                                                               // 안함
                 .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers(HttpMethod.OPTIONS, "/api/v1/**").permitAll() // CORS 사전 요청 (OPTIONS) 허용
                         .requestMatchers("/api/v1/users/register", "/api/v1/users/login").permitAll() // 회원가입 및 로그인 경로는
                                                                                                       // 모두 허용
                         .anyRequest().authenticated() // 그 외 모든 요청은 인증 필요
